@@ -89,13 +89,13 @@ class VehicleController():
         self.waypoint_pub.publish(self.marker_array)
 
     def renumber_markers(self):
-        id = 0.0
+        id = 0
         num_markers = len(self.marker_array.markers)
         n = float(num_markers)*3/4
         for m in self.marker_array.markers:
             m.id = id
             m.color.a = ((id/num_markers) * n + (num_markers-n))/n
-            id += 1.0
+            id += 1
 
     '''
     Adds the x-y position presented in the msg as a waypoint (pose + visual marker)
