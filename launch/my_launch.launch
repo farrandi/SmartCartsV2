@@ -18,7 +18,7 @@ Global Nodes:
 -->
 
 <launch>
-  <arg name="waypoints_file" value="$(find smartcarts)/node/preset_poses/sine_L4A1.csv"/> <!-- load in preset poses for leader -->
+  <arg name="waypoints_file" value="$(find smartcarts)/node/preset_poses/straight_45deg.csv"/> <!-- load in preset poses for leader -->
   <param name="/camera_type" value="depth"/>
   <param name="/ball_radius" value="0.04" />
   <param name="/debug_mode" value="0"/>
@@ -28,7 +28,7 @@ Global Nodes:
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
       <env name="GAZEBO_RESOURCE_PATH" value="$(find smartcarts)"/>
       <env name="GAZEBO_MODEL_PATH" value="$(find smartcarts)/models"/>
-      <arg name="world_name" value="$(find smartcarts)/worlds/smartcarts.world"/>
+      <arg name="world_name" value="$(find smartcarts)/worlds/slamtest.world"/>
       <arg name="gui" value="true"/>
   </include>
 
