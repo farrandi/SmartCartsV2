@@ -17,9 +17,8 @@
   <xacro:property name="wheel_mass" value="0.025"/>
 
   <xacro:include filename="$(find smartcarts)/urdf/macros.xacro"/>
-  <xacro:include filename="$(find smartcarts)/urdf/materials.xacro"/>
-  <xacro:include filename="$(find smartcarts)/urdf/realsense_d435.urdf.xacro" />
-  
+  <xacro:include filename="$(find smartcarts)/urdf/materials.xacro"/>  
+
   <link name='chassis'>
     <xacro:box_inertial name="chassis" m="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}"/>
     <collision name='chassis_collision'>
@@ -120,7 +119,7 @@
     </visual>
   </link>
 
- <link name='camera_link'>
+ <!-- <link name='camera_link'>
     <xacro:box_inertial name="camera_link" m="${camera_mass}" x="${camera_width}" y="${camera_length}" z="${camera_height}"/>
     <collision name='camera_link_collision'>
       <geometry>
@@ -133,7 +132,7 @@
         <box size="${camera_length} ${camera_width} ${camera_height}"/>
       </geometry>
     </visual>
-  </link> 
+  </link>  -->
 
   <link name="imu_link">
     <inertial>
@@ -155,11 +154,11 @@
     </collision>
   </link>
 
-  <sensor_d435 parent="camera_link">
+  <!-- <sensor_d435 parent="camera_link">
     <topic>__default_topic__</topic>
     <topicName>realsense_camera</topicName>
     <origin xyz="0.0 0.2 0" rpy="0 0 0"/>
-  </sensor_d435>
+  </sensor_d435> -->
 
   <joint name="ball_joint" type="continuous">
     <parent link="chassis"/>
@@ -285,7 +284,7 @@
     </plugin>
   </gazebo>
 
-  <gazebo reference="camera_link">
+  <!-- <gazebo reference="camera_link">
     <sensor type="camera" name="realsense_d435">
       <update_rate>30.0</update_rate>
       <camera name="head">
@@ -320,7 +319,7 @@
         <distortionT2>0.0</distortionT2>
       </plugin>
     </sensor>
-  </gazebo>
+  </gazebo> -->
 <!--
   <xacro:property name="camera_name" value="camera1"/>
 
