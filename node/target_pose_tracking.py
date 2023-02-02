@@ -112,7 +112,7 @@ class BallTracker:
     '''
     def parse_color_image(self, mask, img):
         # Finding Contours
-        image_, contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         # Find max contour area
         i = 0
         maxContour = 0

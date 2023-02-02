@@ -385,7 +385,8 @@
         <depthImageTopicName>${camera_name}/depth/image_raw</depthImageTopicName>
         <depthImageInfoTopicName>${camera_name}/depth/camera_info</depthImageInfoTopicName>
         <pointCloudTopicName>${camera_name}/depth/points</pointCloudTopicName>
-        <frameName>kinect_frame</frameName>
+        <frameName>camera_link</frameName>
+        <!-- <frameName>kinect_frame</frameName> -->
         <pointCloudCutoff>0.28</pointCloudCutoff>
         <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
         <distortionK1>0.0000000</distortionK1>
