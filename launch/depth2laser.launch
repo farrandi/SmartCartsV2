@@ -1,0 +1,76 @@
+<!-- <launch>
+    <arg name="scan_processing" default="true"/>
+    <arg name="camera"  default="camera"/>
+    <arg name="publish_tf" default="true"/>
+    <arg name="depth" default="depth" />
+    <arg name="scan_topic" default="sensor_msgs/LaserScan" />
+    <group if="$(arg scan_processing)">
+        <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan_loader" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet" />
+        <param name="scan_height" value="10"/>
+        <param name="output_frame_id" value="/$(arg camera)_depth_frame"/>
+        <param name="range_min" value="0.45"/>
+        <remap from="image" to="$(arg camera)/$(arg depth)/image_rect_raw"/>
+        <remap from="scan" to="$(arg scan_topic)"/>
+    </group>   
+</launch> -->
+
+
+<launch>
+
+  <!-- Depth Image to Laser Scan Node -->
+    <arg name="scan_processing" default="true"/>
+    <arg name="camera"  default="camera"/>
+    <arg name="publish_tf" default="true"/>
+    <arg name="depth" default="depth" />
+    <arg name="scan_topic" default="scan" />
+  <node name="depthimage_to_laserscan" pkg="depthimage_to_laserscan" type="depthimage_to_laserscan" args="">
+
+    <remap from="image" to="$(arg camera)/$(arg depth)/image_rect_raw"/> <!-- change here for your camera depth topic name. Default: "/camera/depth/image_raw" -->
+
+    <remap from="camera_info" to="/camera/color/camera_info"/> 
+    <!-- the remap for camera_info by default uses the same path as the one given to the image topic. Default: "<path_to_image_topic>/camera_info>" -->
+
+    <!-- PARAMETERS: -->
+    <!-- These are the default values. --> 
+    <param name="scan_height"     type="int"    value="10"/> <!-- default: 1 pixel. Number of pixel rows used to generate laser scan. -->
+    <param name="scan_time"       type="double" value="0.033"/> <!-- default:0.033, 30 FPS . Time between scans. -->
+    <param name="range_min"       type="double" value="0.45"/> <!--default:0.45m. Ranges less than this are considered -Inf. -->
+    <param name="range_max"       type="double" value="10.0"/> <!--default: 10m. Ranges less than this are considered +Inf. -->
+    <param name="output_frame_id" value="$(arg camera)_depth_frame"/> <!--default: camera_depth_frame. Frame id of the laser scan. -->
+    <remap from="scan" to="/$(arg scan_topic)"/>
+	
+  </node>
+	
+</launch>
+
+<!-- <launch>
+    <arg name="scan_processing" default="true"/>
+    <arg name="camera"  default="camera"/>
+    <arg name="publish_tf" default="true"/>
+    <arg name="depth" default="depth" />
+    <group if="$(arg scan_processing)">
+        <node pkg="nodelet" type="nodelet" name="depthimage_to_laserscan_loader" args="load depthimage_to_laserscan/DepthImageToLaserScanNodelet $(arg manager)" />
+        <param name="scan_height" value="10"/>
+        <param name="output_frame_id" value="/$(arg camera)_depth_frame"/>
+        <param name="range_min" value="0.45"/>
+        <remap from="image" to="$(arg camera)/$(arg depth)/image_rect_raw"/>
+        <remap from="scan" to="$(arg scan_topic)"/>
+    </group>   
+</launch> -->
+
+
+<!-- <launch>
+
+    <nodepkg= "depthimage_to_laserscan" type= "depthimage_to_laserscan" name= "depthimage_to_laserscan" args= " Standalone Depthimage_to_laserscan/DepthImageToLaserScanNodelet ">
+
+    <remap from= "image" to= "/camera/depth_registered/image_raw"/>
+
+    <remap from= "Camera_info" to= "/camera/depth_registered/camera_info"/>
+
+    <remap from= "Scan" to= "/kinect_scan"/>
+
+    <param name= "Range_max" type= "Double" value= "4"/>
+
+    </node>
+
+</launch> -->
