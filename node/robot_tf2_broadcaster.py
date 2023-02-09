@@ -24,7 +24,7 @@ def handle_robot_pose(msg, robot_name):
     br = tf2_ros.TransformBroadcaster()
     t = geometry_msgs.msg.TransformStamped()
 
-    t.header.stamp = rospy.Time.now()
+    t.header.stamp = rospy.Time.now() + rospy.Time(secs=0, nsecs=1)
     t.header.frame_id = "odom"
     t.child_frame_id = robot_name
     t.transform.translation.x = msg.position.x
@@ -37,6 +37,7 @@ def handle_robot_pose(msg, robot_name):
     t.transform.rotation.z = q.z
     t.transform.rotation.w = q.w
 
+    # TODO: This is causing warning outputs
     br.sendTransform(t)
 
 # Finds pose corresponding to robot_name from ModelStates
