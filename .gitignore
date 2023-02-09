@@ -1,2 +1,3 @@
-node/__pycache__/
-node/data
+node/__pycache__/interfaces.cpython-38.pyc
+node/data/log.txt
+node/__pycache__/states.cpython-38.pyc
