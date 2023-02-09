@@ -29,7 +29,7 @@ Global Nodes:
       <env name="GAZEBO_RESOURCE_PATH" value="$(find smartcarts)"/>
       <env name="GAZEBO_MODEL_PATH" value="$(find smartcarts)/models"/>
       <arg name="world_name" value="$(find smartcarts)/worlds/smartcarts.world"/>
-      <arg name="gui" value="false"/>
+      <arg name="gui" value="true"/>
   </include>
 
   <group ns="follower">
