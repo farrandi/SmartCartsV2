@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/install
+
+Name: libviso2
+Description: Description of libviso2
+Version: 0.0.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lviso2
+Requires: 

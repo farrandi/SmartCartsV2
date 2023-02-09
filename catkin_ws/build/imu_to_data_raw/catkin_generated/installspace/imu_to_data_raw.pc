@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/install
+
+Name: imu_to_data_raw
+Description: Description of imu_to_data_raw
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

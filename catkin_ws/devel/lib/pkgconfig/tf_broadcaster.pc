@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/devel
+
+Name: tf_broadcaster
+Description: Description of tf_broadcaster
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

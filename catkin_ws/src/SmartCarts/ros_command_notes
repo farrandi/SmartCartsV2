@@ -1,0 +1,50 @@
+# RTABMAP COMMANDS
+-terminal 1: 
+source ~/.bashrc
+roslaunch realsense2_camera rs_camera.launch align_depth:=true
+
+-terminal 2:
+roslaunch rtabmap_ros rtabmap.launch \
+    depth_topic:=/camera/aligned_depth_to_color/image_raw \
+    rgb_topic:=/camera/color/image_raw \
+    camera_info_topic:=/camera/color/camera_info \
+    approx_sync:=false \
+    rtabmap_args:="--delete_db_on_start" \
+
+# LOCATION NOTES
+-- /opt/ros/melodic/include -- .h files are here
+-- /opt/ros/melodic/share -- .msg files are here
+
+# USEFUL COMMANDS
+- register custom ros package
+echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+source ~/Documents/workspace/SmartCarts/devel/setup.bash -- to register ros package in the /src folder of the package folder (eg robot_setup_tf/src -> source...) 
+
+-making the sensor_stream package: catkin_create_pkg sensor_stream std_msgs sensor_msgs rospy roscpp tf geometry_msgs
+
+-convert ROS images into OpenCV images: http://wiki.ros.org/cv_bridge/Tutorials/UsingCvBridgeToConvertBetweenROSImagesAndOpenCVImages
+
+-view images from camera from ros command line: rosrun image_view image_view image:=/camera/aligned_depth_to_color/image_raw 
+	-- resource: http://wiki.ros.org/image_view
+
+-download packages: sudo apt-get install ros-package-name (usually something like ros-melodic-perception)
+
+# BUILDING WITH CMAKELISTS
+- Add OpenCV: http://wiki.ros.org/vision_opencv
+add extra text to your CMakeLists.txt to include all the required libraries
+- Build python file: 
+	catkin_install_python(PROGRAMS src/convert_image.py
+  		DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+	) 
+	+ add to the /launch/xx.launch file 
+- Build cpp file:
+	add_executable(pointcloud_pub src/pointcloud_pub.cpp)
+	target_link_libraries(pointcloud_pub ${catkin_LIBRARIES})
+
+# WORKING WITH NODELETS
+http://wiki.ros.org/nodelet/Tutorials/Running%20a%20nodelet
+0. Have to create the whole nodelet environment
+1. Bring up manager: rosrun nodelet nodelet manager __name:=nodelet_manager
+2. Launch nodelet: rosrun nodelet nodelet load nodelet_tutorial_math/Plus nodelet_manager __name:=nodelet1 nodelet1/in:=foo _value:=1.1
+
+

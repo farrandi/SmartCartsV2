@@ -1,0 +1,10 @@
+<launch>
+	<!-- target_tracking_pkg launch file -->
+	<arg name = "input_type" default ="0"/>	
+
+	<node pkg="target_tracking_pkg"
+		  type="depth_camera_ball_tracking.py"
+		  name="ball_tracking"
+		  output="screen">
+	</node>
+</launch>

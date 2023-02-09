@@ -1,0 +1,8 @@
+PID_fyi for "arduino_ROS_combined_motor_encoderwithPID1.ino":
+
+-I started writing this for PID velocity control of the wheel based on encoder readings, but 
+there are already available ROS packages that do this. Namely:
+-"differential_drive"
+-"diff_drive_controller"
+
+-I used "differential_drive"

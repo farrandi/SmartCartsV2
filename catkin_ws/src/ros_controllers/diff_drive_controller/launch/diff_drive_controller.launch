@@ -1,0 +1,9 @@
+<launch>
+	<node pkg="diff_drive_controller" type="diff_drive_controller.cpp" name="diff_drive_controller" output="screen">
+
+	  <param name="base_footprint_frame" value="base_footprint"/>
+
+	  <remap from="odom" to="pr2_base_odometry/odom" />
+	</node>
+
+</launch>

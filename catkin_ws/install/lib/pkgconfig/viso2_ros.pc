@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/install
+
+Name: viso2_ros
+Description: Description of viso2_ros
+Version: 0.0.1
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 

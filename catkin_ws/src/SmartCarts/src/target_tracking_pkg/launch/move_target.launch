@@ -1,0 +1,7 @@
+<launch>
+	<!-- target_tracking_pkg launch file -->
+	<arg name = "input_type" default ="0"/>	
+
+	<node pkg="target_tracking_pkg" type="move_target.py" name="move_target" output="screen">
+	</node>
+</launch>

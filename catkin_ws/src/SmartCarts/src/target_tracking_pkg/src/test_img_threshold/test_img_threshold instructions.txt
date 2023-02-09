@@ -1,0 +1,7 @@
+test_img_threshold instructions:
+
+-take screenshot with D435i and store this pic in the same folder as the above python script
+-python test_img_threshold.py -f hsv -i 'ball.png' -p (where ball.png is the pic you took)
+
+-play with min and max HSV values until only the ball is visible
+-type these min and max HSV values into the ball tracking python script

@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/devel
+
+Name: odom_enc
+Description: Description of odom_enc
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

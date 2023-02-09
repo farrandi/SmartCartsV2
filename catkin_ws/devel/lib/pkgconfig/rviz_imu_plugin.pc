@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/devel
+
+Name: rviz_imu_plugin
+Description: Description of rviz_imu_plugin
+Version: 1.2.2
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: rviz

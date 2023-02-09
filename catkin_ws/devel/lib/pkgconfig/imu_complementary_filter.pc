@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/devel
+
+Name: imu_complementary_filter
+Description: Description of imu_complementary_filter
+Version: 1.2.2
+Cflags: -I/home/fizzer/catkin_ws/src/imu_tools/imu_complementary_filter/include
+Libs: -L${prefix}/lib -lcomplementary_filter
+Requires: message_filters roscpp sensor_msgs std_msgs tf

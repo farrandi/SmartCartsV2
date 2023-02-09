@@ -1,0 +1,48 @@
+. ~/catkin_ws/devel/setup.bash
+
+roscore
+
+. ~/Documents/workspace/SmartCarts/devel/setup.bash
+// add the target tracking package as a ros package
+
+rostopic echo -b 5.bag /device_0/sensor_0/Depth_0/image/data
+// echo this one topic while playing the bag file
+
+rosbag play -l filename.bag 
+//-l means on loop, no -l means play once then end. this activates a ROS node with a random node name
+
+roslaunch target_tracking_pkg ball_tracking.launch input_type:=1
+// input_type:=0 means subscribing to camera. :=1 means subscribing to stream from a .bag file
+
+rosbag info filename.bag
+// list all topics published by the rosbag file
+
+topics interested from bag file:
+- /device_0/sensor_0/Depth_0/image/data (sensor_msgs/Image)
+- /device_0/sensor_1/Color_0/image/data
+- /device_0/sensor_0/Depth_0/tf/0
+- /device_0/sensor_0/option/Depth_Units/description
+- /device_0/sensor_0/option/Depth_Units/value
+
+http://wiki.ros.org/rostopic#rostopic_echo 
+
+rostopic pub /topic_name std_msgs/String hello
+//psuedo publishing of data to /topic
+
+/opt/ros/melodic/share
+// where ros data/packages are
+
+ros_readbagfile ~/Documents/workspace/SmartCarts/src/target_tng_pkg/src/5.bag /device_0/sensor_0/Depth_0/image/data
+// using ros_readbagfile command to read bag file
+
+python
+ python2
+ python2.7
+ python2.7-config
+ python2-config
+ python3
+ python3.6
+ python3.6-config
+ python3.6m
+ python3.6m-config
+ python3.9

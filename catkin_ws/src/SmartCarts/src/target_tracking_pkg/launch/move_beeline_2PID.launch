@@ -1,0 +1,7 @@
+<launch>
+	<!-- target_tracking_pkg launch file -->
+	<arg name = "input_type" default ="0"/>	
+
+	<node pkg="target_tracking_pkg" type="move_beeline_2PID_v0.py" name="move_beeline_2PID_v0" output="screen">
+	</node>
+</launch>

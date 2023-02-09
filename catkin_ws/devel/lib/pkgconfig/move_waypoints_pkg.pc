@@ -1,0 +1,8 @@
+prefix=/home/fizzer/catkin_ws/devel
+
+Name: move_waypoints_pkg
+Description: Description of move_waypoints_pkg
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

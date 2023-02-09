@@ -1,0 +1,19 @@
+24 Jan
+- I am partially through nav stack tutorial
+- Got the ros Image -> openCV Image conversion done, with both \camera\color\image and \camera\aligned_depth_and_color\image_raw
+- Pushed to git so Simon can integrate it with the logic from the ball tracking node
+
+28 Jan
+- Going through the nav stack tutorial, now setting up the configuration files
+- costmap_2d (rolling_window:=true) seems to be the way to go to get a local map
+- http://wiki.ros.org/depth_image_proc -- convert depth image to pointcloud
+- The workflow I think is something like this:
+-- start up realsense: roslaunch realsense2_camera rs_camera.launch align_depth:=true
+-- startup all the packages in the navstack individually: eg. rosrun sensor_stream realsense_pointcloud_pub 
+-- run navstack: run smartcarts_config.launch in the smartcarts_2dnav package
+
+- i am currenttly editing the realsense_pointcloud_pub.cpp file to turn depth images to point clouds
+-- okay so turns out you have to set up a nodelet environment to use this nodelet. I am going through the nodelet tutorial now. 
+I think my first step should be to get the {depth image to pointcloud thing working} -> {get the robot config setup roughly} -> test {costmap_2d + rolling_window}
+
+
