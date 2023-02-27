@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="SmartCartsV2" type="preset_path_v0.py" name="preset_path_v0" output="screen"/>
+</launch>
