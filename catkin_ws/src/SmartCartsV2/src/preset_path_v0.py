@@ -1,8 +1,11 @@
+#!/usr/bin/env python
 from math import pow, atan2, sqrt, pi
+from tf.transformations import euler_from_quaternion
 
 import rospy
 from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from std_msgs.msg import Bool
+from nav_msgs.msg import Odometry
 #Layout Preset Path in Waypoint Poses
 
 WP0 = Pose(Point(1.5,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
@@ -61,7 +64,7 @@ class SmartCart:
 
         self.waypoints = [WP0, WP1, WP2, WP3, WP4, WP5]
 
-        rospy.init_node('preset_path', anonymouse=True)
+        rospy.init_node('preset_path', anonymous=True)
 
         #NEEDED PUBLISHERS & SUBSCRIBERS
         self.vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size = QUEUE_SIZE)
@@ -78,7 +81,7 @@ class SmartCart:
 
 
     #Publishing Functions
-    def setVel(self, forward, turn):
+    def set_vel(self, forward, turn):
         self.vel.linear.x = forward
         
         if turn >= MAX_ANGULAR_VEL_Z:
@@ -97,7 +100,7 @@ class SmartCart:
         self.vel_pub.publish(self.vel)
         self.vel_rate.sleep()
 
-    def setLED(self, LED_state):
+    def set_LED(self, LED_state):
         self.LED.data = LED_state
         self.LED_pub.publish(self.LED)
         
@@ -147,8 +150,8 @@ class SmartCart:
                 self.state = STATE_COMPLETE
                 return
 
-        self.goal_pose.position.x = self.waypoints[self.goalIndex].x
-        self.goal_pose.position.y = self.waypoints[self.goalIndex].y
+        self.goal_pose.position.x = self.waypoints[self.goalIndex].position.x
+        self.goal_pose.position.y = self.waypoints[self.goalIndex].position.y
         self.goalIndex += 1
         rospy.sleep(1.0)
 
@@ -181,7 +184,7 @@ class SmartCart:
     #STATE 3
     def driveToGoal(self):
         if (self.euclidean_distance() > DISTANCE_TOLERANCE) and (self.distance_travelled() < self.startingDistance):
-            self.set_vel(MAX_LINEAR_VEL_X, (Kp_ANG * self.deltaYaw) )
+            self.set_vel(MAX_LINEAR_VEL_X, (KP_ANG * self.deltaYaw) )
             # print("distance travelled is:", self.distance_travelled())
         else:
             self.state = STATE_AT_GOAL
