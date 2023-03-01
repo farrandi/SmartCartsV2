@@ -2,6 +2,7 @@
 import rospy
 from std_msgs.msg import Int32MultiArray, Float32
 from sensor_msgs.msg import Image
+from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge, CvBridgeError
 
 import numpy as np
@@ -60,6 +61,7 @@ class ballTracker:
 
         self.position_pub = rospy.Publisher('target_position', Int32MultiArray, queue_size = 2)
         self.distance_pub = rospy.Publisher('target_distance', Float32, queue_size = 2)
+        self.radius_pub = rospy.Publisher('/ball_radius', Float32, queue_size = 2)
 
         self.depth_image_raw = None
         self.color_image_raw = None
@@ -84,6 +86,7 @@ class ballTracker:
             color_image = cv2.circle(color_image, (x,y), radius, (0, 255, 255), 2)
             position_data = Int32MultiArray(data=[x,y])
             self.position_pub.publish(position_data)
+            self.radius_pub.publish(radius)
 
         cv2.imshow("RGB", color_image)
         cv2.waitKey(3)
