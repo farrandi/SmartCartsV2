@@ -14,12 +14,16 @@ UPPER_RED1 = np.array([10,255,255])
 LOWER_RED2 = np.array([170,200,50])
 UPPER_RED2 = np.array([180,255,255])
 
+LOWER_GREEN = np.array([40, 40, 40])
+UPPER_GREEN = np.array([70,255,255])
+
 def contour_filter(img):
     image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    mask1 = cv2.inRange(image, LOWER_RED1, UPPER_RED1)
-    mask2 = cv2.inRange(image, LOWER_RED2, UPPER_RED2)
-    mask = mask1 + mask2
+    #mask1 = cv2.inRange(image, LOWER_RED1, UPPER_RED1)
+    #mask2 = cv2.inRange(image, LOWER_RED2, UPPER_RED2)
+    #mask = mask1 + mask2
+    mask = cv2.inRange(image, LOWER_GREEN, UPPER_GREEN)
 
     return mask
 
@@ -52,7 +56,7 @@ class ballTracker:
         self.camera_param = 'depth'
 
         self.color_sub = rospy.Subscriber('/camera/color/image_raw'.format(self.namespace), Image, self.color_callback, queue_size = 2)
-        self.depth_sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw'.format(self.namespace), Image, self.depth_callback, queue_size = 2)
+        self.depth_sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self.depth_callback, queue_size = 2)
 
         self.position_pub = rospy.Publisher('target_position', Int32MultiArray, queue_size = 2)
         self.distance_pub = rospy.Publisher('target_distance', Float32, queue_size = 2)
@@ -61,10 +65,9 @@ class ballTracker:
         self.color_image_raw = None
         self.circle_list = None
 
-    def callback(self, image):
+    def color_callback(self, image):
         try:
             self.color_image_raw = self.bridge.imgmsg_to_cv2(image, 'bgr8')
-            self.depth_image_raw = self.bridge.imgmsg_to_cv2(image, "passthrough")
         except CvBridgeError as e:
             print(e)
 
@@ -82,14 +85,25 @@ class ballTracker:
             position_data = Int32MultiArray(data=[x,y])
             self.position_pub.publish(position_data)
 
-            distance = self.depth_image_raw[y][x]
-            print(distance)
-            self.distance_pub.publish(float(distance))
-
         cv2.imshow("RGB", color_image)
         cv2.waitKey(3)
         return
-    
+
+    def depth_callback(self, image):
+        try:
+            self.depth_image_raw = self.bridge.imgmsg_to_cv2(image, "passthrough")
+        except CvBridgeError as e:
+            print(e)
+
+        depth_array = np.array(self.depth_image_raw, dtype=np.float32)
+
+        if self.circle_list is None:
+            self.distance_pub.publish(float(-1.0))
+        else:
+            x = self.circle_list[0]
+            y = self.circle_list[1]
+            distance = depth_array[y][x]
+            self.distance_pub.publish(float(distance))
 
 def main(args):
     rospy.init_node('ball_tracker', anonymous=True)
