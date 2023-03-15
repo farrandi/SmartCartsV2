@@ -1,11 +1,14 @@
 <launch>
 
 <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
-  <param name="output_frame" value="odom_combined"/>
-  <param name="base_footprint_frame" value="base_link"/>
+  <!-- NEED CHANGE RELEVANT SUBSCRIBERS (RTABMAP_ROS) TO SUBSCRIBE TO /odom_combined instead of /odom-->
+  <param name="output_frame" value="odom_combined"/>  
+  <!-- Unsure about the value for the base_frame. It should be the frame of the robot. Not sure what the base frame is actually called. I assume base_link -->
+  <param name="base_footprint_frame" value="base_link"/>  
   <param name="freq" value="30.0"/>
   <param name="sensor_timeout" value="1.0"/>  
-  <param name="odom_used" value="true"/>  <!-- wheel odometry -->
+  <!-- wheel odometry -->
+  <param name="odom_used" value="true"/>
   <param name="imu_used" value="true"/>
   <param name="vo_used" value="false"/>
 

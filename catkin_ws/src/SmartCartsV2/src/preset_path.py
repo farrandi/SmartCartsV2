@@ -6,6 +6,9 @@ import rospy
 from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from std_msgs.msg import Bool
 from nav_msgs.msg import Odometry
+
+import csv
+
 #Layout Preset Path in Waypoint Poses
 
 WP0 = Pose(Point(1.5,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
@@ -74,9 +77,14 @@ class SmartCart:
         self.LED_rate = rospy.Rate(LED_PUBLISH_RATE)
         
         #subscriber that subscribes to the "Odom" topic and calls the function "odomProcess"
-        self.odom_sub = rospy.Subscriber('odom', Odometry, self.odomProcess)
+        self.odom_sub = rospy.Subscriber('odom_combined', Odometry, self.odomProcess)
 
         self.state = STATE_AT_GOAL #Set state so that Initially, we get next goal from user
+
+        self.csv_file = open("dist.csv", "w")
+        self.csv_writer = csv.writer(self.csv_file)
+        self.csv_writer.writerows(["goal x", "goal y", "true x", "true y", "error"])
+
         print("SmartCart Initialized")
 
 
@@ -109,7 +117,10 @@ class SmartCart:
     def odomProcess(self, odomData):
         self.current_pose.position.x = odomData.pose.pose.position.x
         self.current_pose.position.y = odomData.pose.pose.position.y
-        self.currentYaw = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
+        self.currentYaw = data[2] = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
+        data = [self.goal_pose.position.x, self.goal_pose.position.y, odomData.pose.pose.position.x, odomData.pose.pose.position.y, euclidean_distance()]
+        self.csv_writer.writerows(data)
+
 
     def euclidean_distance(self):
         return sqrt( pow((self.goal_pose.position.x - self.current_pose.position.x), 2) + pow((self.goal_pose.position.y - self.current_pose.position.y), 2) )
@@ -214,6 +225,8 @@ if __name__ == "__main__":
             else:
                 print("ERROR: NOT in any state")
                 cart.set_vel(0.0, 0.0)
+
+        self.csv_writer.close()
 
     except rospy.ROSInterruptException: pass
 
