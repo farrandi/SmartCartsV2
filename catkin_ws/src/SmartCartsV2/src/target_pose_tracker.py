@@ -40,7 +40,6 @@ UPPER_GREEN = np.array([70,255,255])
 class ballTracker:
 
     def __init__(self):
-        time.sleep(2.0) # Wait for camera in gazebo to start up
         self.bridge = CvBridge()
         self.namespace = rospy.get_namespace()
 
@@ -71,10 +70,10 @@ class ballTracker:
     def contour_filter(self, img):
         image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-        #mask1 = cv2.inRange(image, LOWER_RED1, UPPER_RED1)
-        #mask2 = cv2.inRange(image, LOWER_RED2, UPPER_RED2)
-        #mask = mask1 + mask2
-        mask = cv2.inRange(image, LOWER_GREEN, UPPER_GREEN)
+        mask1 = cv2.inRange(image, LOWER_RED1, UPPER_RED1)
+        mask2 = cv2.inRange(image, LOWER_RED2, UPPER_RED2)
+        mask = mask1 + mask2
+        #mask = cv2.inRange(image, LOWER_GREEN, UPPER_GREEN)
 
         return mask
 
@@ -145,7 +144,7 @@ class ballTracker:
         # Find ball in color frame
         color_image = np.asanyarray(self.color_image_raw)
         mask = self.contour_filter(color_image)
-        self.circle_list = self.parse_color_image(mask, color_image)
+        self.circle_list = self.parse_color_image(mask)
 
         if self.circle_list is None:
             self.position_pub.publish(Int32MultiArray(data=[-1,-1]))
