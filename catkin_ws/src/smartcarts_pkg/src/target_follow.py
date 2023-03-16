@@ -14,7 +14,7 @@ THRESHOLD_YAW_RADIANS = (1.5)*pi/180    #when turning to goal, this is the toler
 DISTANCE_TOLERANCE = 0.01   #robot will travel to this value in metres around the goal position
 
 MAX_LINEAR_VEL_X = 0.25     #maximum linear x velocity to use in m/s
-MAX_ANGULAR_VEL_Z = 0.25    #maximum angular z velocity to use in rad/s
+MAX_ANGULAR_VEL_Z = 0.1    #maximum angular z velocity to use in rad/s
 MIN_ANGULAR_VEL_Z = 0.00    #minimum angular z velocity to use in rad/s
 
 VEL_PUBLISH_RATE = 20    #5Hz velocity message publish rate
@@ -109,7 +109,7 @@ class SmartCart:
         
     #Helper Functions
     def odomProcess(self, odomData):
-        self.current_pose.position.x = odomData.pose.pose.position.x
+        self.current_pose.position.x = odomData.pose.pose.position.x + 0.375
         self.current_pose.position.y = odomData.pose.pose.position.y
         self.currentYaw = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
 

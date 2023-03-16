@@ -1,23 +1,12 @@
 #!/usr/bin/env python
-from math import pow, atan2, sqrt, pi
+from math import pow, atan2, sqrt, pi, asin, cos
+import numpy as np
 from tf.transformations import euler_from_quaternion
 
 import rospy
 from geometry_msgs.msg import Pose, Point, Quaternion, Twist
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Int32MultiArray, Float32
 from nav_msgs.msg import Odometry
-
-import csv
-
-#Layout Preset Path in Waypoint Poses
-
-WP0 = Pose(Point(1.0,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-WP1 = Pose(Point(1.5,0.5,0.0), Quaternion(0.0,0.0,0.0,1.0))
-#WP2 = Pose(Point(3.0,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-#WP3 = Pose(Point(1.5,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-#WP4 = Pose(Point(0.0,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-#WP5 = Pose(Point(0.0,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-LOOP = False
 
 DELAY_TIME = 0.005
 
@@ -25,13 +14,13 @@ THRESHOLD_YAW_RADIANS = (1.5)*pi/180    #when turning to goal, this is the toler
 DISTANCE_TOLERANCE = 0.01   #robot will travel to this value in metres around the goal position
 
 MAX_LINEAR_VEL_X = 0.25     #maximum linear x velocity to use in m/s
-MAX_ANGULAR_VEL_Z = 0.25    #maximum angular z velocity to use in rad/s
+MAX_ANGULAR_VEL_Z = 0.1    #maximum angular z velocity to use in rad/s
 MIN_ANGULAR_VEL_Z = 0.00    #minimum angular z velocity to use in rad/s
 
 VEL_PUBLISH_RATE = 20    #5Hz velocity message publish rate
 LED_PUBLISH_RATE = 3    #3Hz LED message publish rate
 TEST_PUBLISH_RATE = 1    #1Hz test messages publish rate
-QUEUE_SIZE = 10
+QUEUE_SIZE = 3
 
 KP_ANG = 0.8
 
@@ -65,7 +54,14 @@ class SmartCart:
         self.LED = Bool()
         self.LED.data = 0
 
-        self.waypoints = [WP0, WP1]
+        self.target_pos = Int32MultiArray(data=[-1,-1])
+        self.target_dist = float(-1.0)
+        self.target_radius = float(-1.0)
+
+        self.camera_width = 1280
+        self.ball_radius = 0.1
+
+        self.waypoints = []
 
         rospy.init_node('preset_path', anonymous=True)
 
@@ -79,12 +75,15 @@ class SmartCart:
         #subscriber that subscribes to the "Odom" topic and calls the function "odomProcess"
         self.odom_sub = rospy.Subscriber('odom', Odometry, self.odomProcess)
 
-        self.state = STATE_AT_GOAL #Set state so that Initially, we get next goal from user
+        self.target_pos_sub = rospy.Subscriber('target_position', Int32MultiArray, self.target_pos_process)
+        self.target_dist_sub = rospy.Subscriber('target_distance', Float32, self.target_dist_process)
+        self.target_radius_sub = rospy.Subscriber('ball_radius', Float32, self.target_radius_process)
 
-        self.csv_file = open("dist.csv", "w")
-        self.csv_writer = csv.writer(self.csv_file)
-        self.csv_writer.writerows(["goal x", "goal y", "true x", "true y", "error"])
+        for i in range(QUEUE_SIZE):
+            raw_input("Press Enter to register waypoint")
+            self.waypoints.append(self.get_next_waypoint())
 
+        self.state = STATE_GET_NEXT_GOAL #Set state so that Initially, we get next goal from user
         print("SmartCart Initialized")
 
 
@@ -112,15 +111,20 @@ class SmartCart:
         self.LED.data = LED_state
         self.LED_pub.publish(self.LED)
         
-
     #Helper Functions
     def odomProcess(self, odomData):
-        self.current_pose.position.x = odomData.pose.pose.position.x
+        self.current_pose.position.x = odomData.pose.pose.position.x + 0.375
         self.current_pose.position.y = odomData.pose.pose.position.y
         self.currentYaw = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
-        data = [self.goal_pose.position.x, self.goal_pose.position.y, odomData.pose.pose.position.x, odomData.pose.pose.position.y, self.euclidean_distance()]
-        self.csv_writer.writerow(data)
 
+    def target_pos_process(self, posData):
+        self.target_pos = posData.data
+
+    def target_dist_process(self, distData):
+        self.target_dist = distData.data / 1000.0
+
+    def target_radius_process(self, radData):
+        self.target_radius = radData.data
 
     def euclidean_distance(self):
         return sqrt( pow((self.goal_pose.position.x - self.current_pose.position.x), 2) + pow((self.goal_pose.position.y - self.current_pose.position.y), 2) )
@@ -138,6 +142,27 @@ class SmartCart:
             return (2*pi + self.deltaYaw_unfiltered)
         else:
             return self.deltaYaw_unfiltered
+        
+    def get_next_waypoint(self):
+        #Process the next pose using target_pos, target_dist
+        print(self.target_dist)
+        if self.target_dist < 0.01 or self.target_dist > 10 or np.isnan(self.target_dist):
+            target_pose = Pose(position = Point(x = -1, y = -1, z = -1), orientation = Quaternion(w=1))
+        else:
+            pixel_scale = self.target_radius/self.ball_radius # Pixels/unit Length
+            y_dist_from_center = (self.camera_width/2 - self.target_pos[0]) / pixel_scale # Unit length
+            if abs(y_dist_from_center/self.target_dist) > 1 :
+                print("MATH ERROR: y_dist_from_center={}, dist_data={}".format(y_dist_from_center, self.target_dist))
+                print("time = {}".format(rospy.Time.now()))
+            else:
+                theta = asin(y_dist_from_center / self.target_dist) # Radians
+                x_dist_from_camera = self.target_dist * cos(theta) # Unit length, rel to Follower ref frame
+                y_dist_from_camera = y_dist_from_center # Unit length, rel to Follower ref frame
+                #target_pose = Pose(position = Point(x = x_dist_from_camera, y =  y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
+                print("x: ", x_dist_from_camera, " y: ", y_dist_from_camera)
+                target_pose = Pose(position = Point(x = self.current_pose.position.x + x_dist_from_camera, y = self.current_pose.position.y + y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
+        
+        return target_pose
 
 
     #Goal Setting/Getting Functions
@@ -145,6 +170,8 @@ class SmartCart:
     def atGoal(self):
         self.set_vel(0.0, 0.0)
         self.set_LED(1)
+        if len(self.waypoints) != 0:
+            self.waypoints.pop(0)
         print("Goal Reached!")
         print("")
         print("")
@@ -155,11 +182,8 @@ class SmartCart:
     #STATE 1
     def getNextGoal(self):
         if self.goalIndex == len(self.waypoints):
-            if LOOP:
-                self.goalIndex = 0
-            else:
-                self.state = STATE_COMPLETE
-                return
+            self.state = STATE_COMPLETE
+            return
         print("Current Pose: ", self.current_pose)
         print("Got Next waypoint : ", self.waypoints[self.goalIndex])
 
@@ -198,7 +222,7 @@ class SmartCart:
     def driveToGoal(self):
         if (self.euclidean_distance() > DISTANCE_TOLERANCE) and (self.distance_travelled() < self.startingDistance):
             self.set_vel(MAX_LINEAR_VEL_X, (KP_ANG * self.deltaYaw) )
-            print("distance travelled is:", self.distance_travelled())
+            # print("distance travelled is:", self.distance_travelled())
         else:
             self.state = STATE_AT_GOAL
             print("current state is: 0 (STATE_AT_GOAL)")
@@ -228,7 +252,4 @@ if __name__ == "__main__":
                 print("ERROR: NOT in any state")
                 cart.set_vel(0.0, 0.0)
 
-        cart.csv_writer.close()
-
     except rospy.ROSInterruptException: pass
-

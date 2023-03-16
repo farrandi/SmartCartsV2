@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="smartcarts_pkg" type="basic_queue_follow.py" name="basic_queue_follow" output="screen"/>
+</launch>
