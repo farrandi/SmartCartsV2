@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="smartcarts_pkg" type="target_pose_tracker.py" name="target_pose_tracker" output="screen"/>
+</launch>

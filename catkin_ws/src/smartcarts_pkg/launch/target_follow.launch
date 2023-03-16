@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="smartcarts_pkg" type="target_follow.py" name="target_follow" output="screen"/>
+</launch>

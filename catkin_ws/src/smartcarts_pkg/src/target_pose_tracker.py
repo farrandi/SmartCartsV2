@@ -45,6 +45,7 @@ class ballTracker:
 
         self.camera_param = 'depth'
 
+        print("HERE")
         # Initialize Subscribers
         self.color_sub = rospy.Subscriber('/camera/color/image_raw'.format(self.namespace), Image, self.color_callback, queue_size = 2)
         self.depth_sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self.depth_callback, queue_size = 2)
@@ -170,28 +171,32 @@ class ballTracker:
         depth_array = np.array(self.depth_image_raw, dtype=np.float32)
 
         if self.circle_list is None:
+            print(distance)
             self.distance_pub.publish(float(-1.0))
         else:
             x = self.circle_list[0]
             y = self.circle_list[1]
             distance = depth_array[y][x]
+            print(distance)
+            #distance = distance / 1000
             self.distance_pub.publish(float(distance))
 
             # Condition from target_pose_tracking.py (Sim)
             # Still uses target pose...
-            if distance < 0.01 or distance > 10 or np.isnan(distance):
-                self.distance_pub.publish(float(-1.0))
-            else:
-                self.distance_pub.publish(distance)
-                target_pose = self.calc_leader_pose([x,y], distance, radius)
-                if self.twist.angular.z > 0:
+            #if distance < 0.01 or distance > 10 or np.isnan(distance):
+            #    print("BAD")
+            #    self.distance_pub.publish(float(-1.0))
+            #else:
+            #    print("GOOD")
+            #    self.distance_pub.publish(distance)
+                #target_pose = self.calc_leader_pose([x,y], distance, radius)
+                #if self.twist.angular.z > 0:
                     #target_pose == target_position ??
-                    self.target_pose_pub.publish(self.no_ball_poseStamped())
-                else:
-                    self.target_pose_pub.publish(PoseStamped(header = Header(stamp = rospy.Time.now(), frame_id = "follower"), \
-                                                            pose = target_pose))
+                #    self.target_pose_pub.publish(self.no_ball_poseStamped())
+                #else:
+                #    self.target_pose_pub.publish(PoseStamped(header = Header(stamp = rospy.Time.now(), frame_id = "follower"), \
+                #                                            pose = target_pose))
         return
-
 
 def main(args):
     rospy.init_node('ball_tracker', anonymous=True)

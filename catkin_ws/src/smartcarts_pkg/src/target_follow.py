@@ -59,6 +59,7 @@ class SmartCart:
         self.target_radius = float(-1.0)
 
         self.camera_width = 1280
+        self.ball_radius = 0.1
 
         self.waypoints = []
 
@@ -113,13 +114,13 @@ class SmartCart:
         self.currentYaw = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
 
     def target_pos_process(self, posData):
-        self.target_pos = posData
+        self.target_pos = posData.data
 
     def target_dist_process(self, distData):
-        self.target_dist = distData
+        self.target_dist = distData.data / 1000.0
 
     def target_radius_process(self, radData):
-        self.target_radius = radData
+        self.target_radius = radData.data
 
     def euclidean_distance(self):
         return sqrt( pow((self.goal_pose.position.x - self.current_pose.position.x), 2) + pow((self.goal_pose.position.y - self.current_pose.position.y), 2) )
@@ -140,6 +141,7 @@ class SmartCart:
         
     def get_next_waypoint(self):
         #Process the next pose using target_pos, target_dist
+        print(self.target_dist)
         if self.target_dist < 0.01 or self.target_dist > 10 or np.isnan(self.target_dist):
             target_pose = Pose(position = Point(x = -1, y = -1, z = -1), orientation = Quaternion(w=1))
         else:
@@ -152,7 +154,9 @@ class SmartCart:
                 theta = asin(y_dist_from_center / self.target_dist) # Radians
                 x_dist_from_camera = self.target_dist * cos(theta) # Unit length, rel to Follower ref frame
                 y_dist_from_camera = y_dist_from_center # Unit length, rel to Follower ref frame
-                target_pose = Pose(position = Point(x = x_dist_from_camera, y = y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
+                #target_pose = Pose(position = Point(x = x_dist_from_camera, y =  y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
+                print("x: ", x_dist_from_camera, " y: ", y_dist_from_camera)
+                target_pose = Pose(position = Point(x = self.current_pose.position.x + x_dist_from_camera, y = self.current_pose.position.y + y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
         
         self.waypoints.append(target_pose)
 
@@ -162,7 +166,8 @@ class SmartCart:
     def atGoal(self):
         self.set_vel(0.0, 0.0)
         self.set_LED(1)
-        self.waypoints.pop(0)
+        if len(self.waypoints) != 0:
+            self.waypoints.pop(0)
         print("Goal Reached!")
         print("")
         print("")
@@ -174,7 +179,7 @@ class SmartCart:
     def getNextGoal(self):
         if len(self.waypoints) == 0:
             #Wait for next waypoint
-            input("Press Enter to register next waypoint")
+            raw_input("Press Enter to register next waypoint")
             self.get_next_waypoint()
             print("Got Next waypoint : ", self.waypoints[0])
 
@@ -182,6 +187,8 @@ class SmartCart:
         self.goal_pose.position.y = self.waypoints[0].position.y
         self.goalIndex += 1
         rospy.sleep(1.0)
+        print("CURRENT : ", self.current_pose)
+        print("GOAL : ", self.goal_pose)
 
         if self.euclidean_distance() > DISTANCE_TOLERANCE:
             self.startingDistance = self.euclidean_distance()
