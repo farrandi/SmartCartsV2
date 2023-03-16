@@ -24,6 +24,8 @@ QUEUE_SIZE = 10
 
 KP_ANG = 0.8
 
+MAX_WAYPOINTS = 3 # max number of waypoints to save
+
 #Possible SmartCart STATES:
 STATE_AT_GOAL = 0
 STATE_GET_NEXT_GOAL = 1
@@ -78,6 +80,7 @@ class SmartCart:
         self.target_pos_sub = rospy.Subscriber('target_position', Int32MultiArray, self.target_pos_process)
         self.target_dist_sub = rospy.Subscriber('target_distance', Float32, self.target_dist_process)
         self.target_radius_sub = rospy.Subscriber('ball_radius', Float32, self.target_radius_process)
+        self.last_waypoint_time = rospy.Time.now()
 
         self.state = STATE_AT_GOAL #Set state so that Initially, we get next goal from user
         print("SmartCart Initialized")
@@ -230,6 +233,10 @@ if __name__ == "__main__":
         cart = SmartCart()
 
         while not rospy.is_shutdown():  #run infinite loop 
+            # Append waypoints if there are fewer than the buffer and more than 5 seconds have passed
+            if len(cart.waypoints) < MAX_WAYPOINTS and (rospy.Time.now() - cart.last_waypoint_time).to_sec() > 5:
+                cart.get_next_waypoint()
+
             if cart.state == STATE_AT_GOAL:        #STATE_AT_GOAL = 0
                 # print("current state is: 0 (STATE_AT_GOAL)")
                 cart.atGoal()
