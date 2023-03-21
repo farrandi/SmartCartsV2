@@ -10,6 +10,7 @@ from nav_msgs.msg import Odometry
 import csv
 
 #Layout Preset Path in Waypoint Poses
+
 WP0 = Pose(Point(0.5,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP1 = Pose(Point(0.5,0.5,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP2 = Pose(Point(0.0,0.5,0.0), Quaternion(0.0,0.0,0.0,1.0))
