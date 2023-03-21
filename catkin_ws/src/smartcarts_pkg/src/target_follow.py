@@ -22,7 +22,10 @@ LED_PUBLISH_RATE = 3    #3Hz LED message publish rate
 TEST_PUBLISH_RATE = 1    #1Hz test messages publish rate
 
 HORIZONTAL_FOV = 86 # (degrees) for D435, src: https://www.intel.com/content/www/us/en/support/articles/000030385/emerging-technologies/intel-realsense-technology.html
+VERTICAL_FOV = 57
 BALL_RADIUS = 0.096 #m (actual ball radius measured by meter rule)
+HORIZ_RESOL = 1280 #px
+VERT_RESOL = 720 #px
 
 QUEUE_SIZE = 10
 
@@ -65,6 +68,7 @@ class SmartCart:
         self.target_radius = float(-1.0)
 
         self.camera_width = 1280
+        self.camera_height = 720
         self.ball_radius = 0.1
 
         self.waypoints = []
@@ -196,10 +200,20 @@ class SmartCart:
     src: 
     '''
     def get_horizontal_displacement(self):
-        ball_diam_pixels = -120.54 * self.target_dist + 338.4
-        pixel_scale = ball_diam_pixels / BALL_RADIUS
+        x = self.target_pos[0] - self.camera_width / 2
+        y = self.target_pos[1] - self.camera_height / 2
+        horiz_angle = x / (HORIZONTAL_FOV / 2)
+        vert_angle = y / (VERTICAL_FOV / 2)
+        corrected_dist = (self.target_dist + BALL_RADIUS) * np.cos(np.deg2rad(horiz_angle)) * np.cos(np.deg2rad(vert_angle))
+        pixel_scale = 0.0012 * corrected_dist + 6e-5 # m/px
 
-        return (self.camera_width/2 - self.target_pos[0]) / pixel_scale # returns in m
+        # Theory, using FOV
+        # expected_scale = HORIZ_RESOL/(np.tan(HORIZONTAL_FOV/2)*self.target_dist)
+        expected_scale = HORIZ_RESOL/(np.tan(HORIZONTAL_FOV/2)*corrected_dist)
+
+        print("Scale Diff = {delta} ----- actual = {act}, expected = {exp}".format(delta=expected_scale-pixel_scale, act=pixel_scale, exp=expected_scale))
+
+        return (self.camera_width/2 - self.target_pos[0]) * pixel_scale # returns in m
         
 
 
