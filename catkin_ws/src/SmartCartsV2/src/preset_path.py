@@ -77,13 +77,13 @@ class SmartCart:
         self.LED_rate = rospy.Rate(LED_PUBLISH_RATE)
         
         #subscriber that subscribes to the "Odom" topic and calls the function "odomProcess"
-        self.odom_sub = rospy.Subscriber('odom_combined', Pose, self.odomProcess)
+        self.odom_sub = rospy.Subscriber('odom_combined', Odometry, self.odomProcess)
 
         self.state = STATE_AT_GOAL #Set state so that Initially, we get next goal from user
 
-        self.csv_file = open("./dist.csv", "w")
+        self.csv_file = open("dist.csv", "w")
         self.csv_writer = csv.writer(self.csv_file)
-        self.csv_writer.writerow(["goal x", "goal y", "true x", "true y", "error"])
+        self.csv_writer.writerows(["goal x", "goal y", "true x", "true y", "error"])
 
         print("SmartCart Initialized")
 
@@ -119,7 +119,7 @@ class SmartCart:
         self.current_pose.position.y = odomData.pose.pose.position.y
         self.currentYaw = data[2] = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
         data = [self.goal_pose.position.x, self.goal_pose.position.y, odomData.pose.pose.position.x, odomData.pose.pose.position.y, self.euclidean_distance()]
-        self.csv_writer.writerow(data)
+        self.csv_writer.writerows(data)
 
 
     def euclidean_distance(self):
@@ -226,7 +226,7 @@ if __name__ == "__main__":
                 print("ERROR: NOT in any state")
                 cart.set_vel(0.0, 0.0)
 
-        cart.csv_file.close()
+        self.csv_file.close()
 
     except rospy.ROSInterruptException: pass
 
