@@ -157,7 +157,6 @@ class ballTracker:
             position_data = Int32MultiArray(data=[x,y])
             self.position_pub.publish(position_data)
             self.radius_pub.publish(radius)
-
         cv2.imshow("RGB", color_image)
         cv2.waitKey(3)
         return
@@ -169,6 +168,7 @@ class ballTracker:
             print(e)
 
         depth_array = np.array(self.depth_image_raw, dtype=np.float32)
+        print(depth_array.shape)
 
         if self.circle_list is None:
             print(distance)

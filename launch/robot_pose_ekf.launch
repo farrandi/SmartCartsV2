@@ -4,7 +4,7 @@
   <!-- NEED CHANGE RELEVANT SUBSCRIBERS (RTABMAP_ROS) TO SUBSCRIBE TO /odom_combined instead of /odom-->
   <param name="output_frame" value="odom_combined"/>  
   <!-- Unsure about the value for the base_frame. It should be the frame of the robot. Not sure what the base frame is actually called. I assume base_link -->
-  <param name="base_footprint_frame" value="optical_frame"/>  
+  <param name="base_footprint_frame" value="camera_imu_optical_frame"/>  
   <param name="freq" value="30.0"/>
   <param name="sensor_timeout" value="1.0"/>  
   <!-- wheel odometry -->

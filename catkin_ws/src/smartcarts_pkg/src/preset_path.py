@@ -3,7 +3,7 @@ from math import pow, atan2, sqrt, pi
 from tf.transformations import euler_from_quaternion
 
 import rospy
-from geometry_msgs.msg import Pose, Point, Quaternion, Twist
+from geometry_msgs.msg import Pose, Point, Quaternion, Twist, PoseWithCovarianceStamped
 from std_msgs.msg import Bool
 from nav_msgs.msg import Odometry
 
@@ -77,11 +77,11 @@ class SmartCart:
         self.LED_rate = rospy.Rate(LED_PUBLISH_RATE)
         
         #subscriber that subscribes to the "Odom" topic and calls the function "odomProcess"
-        self.odom_sub = rospy.Subscriber('odom_combined', Pose, self.odomProcess)
+        self.odom_sub = rospy.Subscriber('robot_pose_ekf/odom_combined', PoseWithCovarianceStamped, self.odomProcess)
 
         self.state = STATE_AT_GOAL #Set state so that Initially, we get next goal from user
 
-        self.csv_file = open("./dist.csv", "w")
+        self.csv_file = open("/home/fizzer/SmartCartsV2/data/dist.csv", "w")
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(["goal x", "goal y", "true x", "true y", "error"])
 
@@ -117,8 +117,9 @@ class SmartCart:
     def odomProcess(self, odomData):
         self.current_pose.position.x = odomData.pose.pose.position.x
         self.current_pose.position.y = odomData.pose.pose.position.y
-        self.currentYaw = data[2] = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
+        self.currentYaw = euler_from_quaternion([odomData.pose.pose.orientation.x, odomData.pose.pose.orientation.y, odomData.pose.pose.orientation.z, odomData.pose.pose.orientation.w])[2]
         data = [self.goal_pose.position.x, self.goal_pose.position.y, odomData.pose.pose.position.x, odomData.pose.pose.position.y, self.euclidean_distance()]
+        print("Saving CSV")
         self.csv_writer.writerow(data)
 
 
