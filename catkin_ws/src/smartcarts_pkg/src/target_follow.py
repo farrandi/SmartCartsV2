@@ -20,6 +20,10 @@ MIN_ANGULAR_VEL_Z = 0.00    #minimum angular z velocity to use in rad/s
 VEL_PUBLISH_RATE = 20    #5Hz velocity message publish rate
 LED_PUBLISH_RATE = 3    #3Hz LED message publish rate
 TEST_PUBLISH_RATE = 1    #1Hz test messages publish rate
+
+HORIZONTAL_FOV = 86 # (degrees) for D435, src: https://www.intel.com/content/www/us/en/support/articles/000030385/emerging-technologies/intel-realsense-technology.html
+BALL_RADIUS = 0.096 #m (actual ball radius measured by meter rule)
+
 QUEUE_SIZE = 10
 
 KP_ANG = 0.8
@@ -144,7 +148,7 @@ class SmartCart:
         
     def get_next_waypoint(self):
         #Process the next pose using target_pos, target_dist
-        print(self.target_dist)
+        print(self.target_dist) # in mm
         if self.target_dist < 0.01 or self.target_dist > 10 or np.isnan(self.target_dist):
             target_pose = Pose(position = Point(x = -1, y = -1, z = -1), orientation = Quaternion(w=1))
         else:
@@ -162,6 +166,41 @@ class SmartCart:
                 target_pose = Pose(position = Point(x = self.current_pose.position.x + x_dist_from_camera, y = self.current_pose.position.y + y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
         
         self.waypoints.append(target_pose)
+
+    '''Gets the next waypoint from target_dist (subsribed package)'''
+    def get_next_waypoint_scaled(self):
+        print("Getting next Waypoint..... \n Target distance: {} mm".format(self.target_dist))
+
+        if self.target_dist < 0.01 or self.target_dist > 10 or np.isnan(self.target_dist):
+            # If target_dist is a "garbage value", return (-1,-1,-1)
+            target_pose = Pose(position = Point(x = -1, y = -1, z = -1), orientation = Quaternion(w=1))
+        else:
+            # Valid Target Distance Value
+            y_disp = self.get_horizontal_displacement()
+
+            if abs(y_disp/self.target_dist) > 1 :
+                print("MATH ERROR: y_disp={}, dist_data={}".format(y_disp, self.target_dist))
+                print("time = {}".format(rospy.Time.now()))
+            else:
+                theta = asin(y_disp / self.target_dist) # Radians
+                x_dist_from_camera = self.target_dist * cos(theta) # Unit length, rel to Follower ref frame
+                y_dist_from_camera = y_disp # Unit length, rel to Follower ref frame
+                #target_pose = Pose(position = Point(x = x_dist_from_camera, y =  y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
+                print("x: ", x_dist_from_camera, " y: ", y_dist_from_camera)
+                target_pose = Pose(position = Point(x = self.current_pose.position.x + x_dist_from_camera, y = self.current_pose.position.y + y_dist_from_camera, z = 0), orientation = Quaternion(w=1.0 ))
+        
+        self.waypoints.append(target_pose)
+
+
+    '''Gets the y displacement from the center using graph tested
+    src: 
+    '''
+    def get_horizontal_displacement(self):
+        ball_diam_pixels = -120.54 * self.target_dist + 338.4
+        pixel_scale = ball_diam_pixels / BALL_RADIUS
+
+        return (self.camera_width/2 - self.target_pos[0]) / pixel_scale # returns in m
+        
 
 
     #Goal Setting/Getting Functions
@@ -183,7 +222,7 @@ class SmartCart:
         if len(self.waypoints) == 0:
             #Wait for next waypoint
             raw_input("Press Enter to register next waypoint")
-            self.get_next_waypoint()
+            self.get_next_waypoint_scaled()
             print("Got Next waypoint : ", self.waypoints[0])
 
         self.goal_pose.position.x = self.waypoints[0].position.x
@@ -235,7 +274,7 @@ if __name__ == "__main__":
         while not rospy.is_shutdown():  #run infinite loop 
             # Append waypoints if there are fewer than the buffer and more than 5 seconds have passed
             if len(cart.waypoints) < MAX_WAYPOINTS and (rospy.Time.now() - cart.last_waypoint_time).to_sec() > 5:
-                cart.get_next_waypoint()
+                cart.get_next_waypoint_scaled()
 
             if cart.state == STATE_AT_GOAL:        #STATE_AT_GOAL = 0
                 # print("current state is: 0 (STATE_AT_GOAL)")
