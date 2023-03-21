@@ -10,28 +10,18 @@ from nav_msgs.msg import Odometry
 import csv
 
 #Layout Preset Path in Waypoint Poses
-
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 WP0 = Pose(Point(1.5,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP1 = Pose(Point(3.0,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP2 = Pose(Point(3.0,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP3 = Pose(Point(1.5,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP4 = Pose(Point(0.0,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP5 = Pose(Point(0.0,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-=======
-=======
->>>>>>> Stashed changes
 WP0 = Pose(Point(0.5,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP1 = Pose(Point(0.5,0.5,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP2 = Pose(Point(0.0,0.5,0.0), Quaternion(0.0,0.0,0.0,1.0))
 WP3 = Pose(Point(0.0,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 #WP4 = Pose(Point(0.0,3.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
 #WP5 = Pose(Point(0.0,0.0,0.0), Quaternion(0.0,0.0,0.0,1.0))
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 LOOP = True
 
 DELAY_TIME = 0.005
