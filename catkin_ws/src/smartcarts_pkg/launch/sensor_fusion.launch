@@ -7,7 +7,7 @@
     enable_gyro:=true \
      enable_accel:=true -->
 
-<node pkg="realsense2_camera" type="realsense2_camera" name="rs_camera">
+<node pkg="realsense2_camera" type="realsense2_camera.launch" name="rs_camera">
     <param name="align_depth" value="true"/>
     <param name="unite_imu_method" value="linear_interpolation"/>
     <param name="enable_gyro" value="true"/>
