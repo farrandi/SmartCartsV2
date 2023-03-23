@@ -1,0 +1,50 @@
+<launch>
+
+    <!-- launch camera with imu -->
+    <!-- roslaunch realsense2_camera rs_camera.launch \
+        align_depth:=true \
+        unite_imu_method:="linear_interpolation" \
+        enable_gyro:=true \
+        enable_accel:=true -->
+
+    <node pkg="realsense2_camera" type="realsense2_camera" name="rs_camera">
+        <param name="align_depth" value="true"/>
+        <param name="unite_imu_method" value="linear_interpolation"/>
+        <param name="enable_gyro" value="true"/>
+        <param name="enable_accel" value="true"/>
+    </node>
+
+    <!-- launch imu filter madgwick (not sure if we need this) -->
+    <!-- rosrun imu_filter_madgwick imu_filter_node \
+        _use_mag:=false \
+        _publish_tf:=false \
+        _world_frame:="enu" \
+        /imu/data_raw:=/camera/imu \
+        /imu/data:=/imu_data -->
+        
+    <node pkg="imu_filter_madgwick" type="imu_filter_madgwick" name="imu_filter_node">
+        <param name="_use_mag" value="false"/>
+        <param name="_publish_tf" value="false"/>
+        <param name="_world_frame" value="enu"/>
+
+        <remap from="/imu/data_raw" to="/camera/imu"/>
+        <remap from="/imu/data" to="/imu_data"/>
+    </node>
+
+
+    <!-- launch robot_pose_ekf -->
+    <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+        <!-- NEED CHANGE RELEVANT SUBSCRIBERS (RTABMAP_ROS) TO SUBSCRIBE TO /odom_combined instead of /odom-->
+        <param name="output_frame" value="odom_combined"/>  
+        <!-- base_footprint_frame defined to be at the camera -->
+        <param name="base_footprint_frame" value="camera_imu_optical_frame"/>  
+        <param name="freq" value="30.0"/>
+        <param name="sensor_timeout" value="1.0"/>  
+        <!-- wheel odometry -->
+        <param name="odom_used" value="true"/>
+        <param name="imu_used" value="true"/>
+        <param name="vo_used" value="false"/>
+        <!-- <remap from="odom" to="pr2_base_odometry/odom" /> -->
+    </node> 
+
+</launch>
